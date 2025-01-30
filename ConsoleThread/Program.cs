@@ -1,15 +1,45 @@
-﻿using ConsoleThread.Helpers;
-
-namespace ConsoleThread;
-
+﻿namespace ConsoleThread;
 
 internal static class Program
 {
+    private static int _x = 0;
+    private static object _locker = new object();
     private static void Main()
     {
-        var threadHelper = new ThreadHelper();
-        threadHelper.Start();
+        for (var i = 1; i < 6; i++)
+        {
+            var thread = new Thread(CountWithLock)
+            {
+                Name = $"Thread {i}"
+            };
+            thread.Start();
+        }
 
         Console.ReadKey();
+    }
+    
+    private static void Count()
+    {
+        _x = 1;
+        for (var i = 1; i < 6; i++)
+        {
+            Console.WriteLine($"{Thread.CurrentThread.Name}: {_x}");
+            _x++;
+            Thread.Sleep(100);
+        }
+    }
+    
+    private static void CountWithLock()
+    {
+        lock(_locker)
+        {
+            _x = 1;
+            for (var i = 1; i < 6; i++)
+            {
+                Console.WriteLine($"{Thread.CurrentThread.Name}: {_x}");
+                _x++;
+                Thread.Sleep(100);
+            }
+        }
     }
 }
